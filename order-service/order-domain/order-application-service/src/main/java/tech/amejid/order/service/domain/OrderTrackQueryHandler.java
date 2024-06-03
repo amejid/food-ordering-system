@@ -26,7 +26,7 @@ public class OrderTrackQueryHandler {
 
 	@Transactional(readOnly = true)
 	public TrackOrderResponse trackOrder(TrackOrderQuery trackOrderQuery) {
-		Optional<Order> orderResult = orderRepository
+		Optional<Order> orderResult = this.orderRepository
 			.findByTrackingId(new TrackingId(trackOrderQuery.getOrderTrackingId()));
 
 		if (orderResult.isEmpty()) {
@@ -35,7 +35,7 @@ public class OrderTrackQueryHandler {
 					"Could not find order with tracking id: " + trackOrderQuery.getOrderTrackingId());
 		}
 
-		return orderDataMapper.orderToTrackOrderResponse(orderResult.get());
+		return this.orderDataMapper.orderToTrackOrderResponse(orderResult.get());
 	}
 
 }
