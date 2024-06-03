@@ -10,6 +10,7 @@ import tech.amejid.domain.valueobject.RestaurantId;
 import tech.amejid.order.service.domain.dto.create.CreateOrderCommand;
 import tech.amejid.order.service.domain.dto.create.CreateOrderResponse;
 import tech.amejid.order.service.domain.dto.create.OrderAddress;
+import tech.amejid.order.service.domain.dto.track.TrackOrderResponse;
 import tech.amejid.order.service.domain.entity.Order;
 import tech.amejid.order.service.domain.entity.OrderItem;
 import tech.amejid.order.service.domain.entity.Product;
@@ -45,6 +46,14 @@ public class OrderDataMapper {
 		return CreateOrderResponse.builder()
 			.orderTrackingId(order.getTrackingId().getValue())
 			.orderStatus(order.getOrderStatus())
+			.build();
+	}
+
+	public TrackOrderResponse orderToTrackOrderResponse(Order order) {
+		return TrackOrderResponse.builder()
+			.orderTrackingId(order.getTrackingId().getValue())
+			.orderStatus(order.getOrderStatus())
+			.failureMessages(order.getFailureMessages())
 			.build();
 	}
 
