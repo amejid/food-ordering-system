@@ -2,9 +2,10 @@ package com.food.ordering.system.application.handler;
 
 import java.util.stream.Collectors;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ValidationException;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;

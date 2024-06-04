@@ -2,11 +2,14 @@ package com.food.ordering.system.order.service.messaging.mapper;
 
 import java.util.UUID;
 
+import com.food.ordering.system.domain.valueobject.PaymentStatus;
 import com.food.ordering.system.kafka.order.avro.model.PaymentOrderStatus;
 import com.food.ordering.system.kafka.order.avro.model.PaymentRequestAvroModel;
+import com.food.ordering.system.kafka.order.avro.model.PaymentResponseAvroModel;
 import com.food.ordering.system.kafka.order.avro.model.Product;
 import com.food.ordering.system.kafka.order.avro.model.RestaurantApprovalRequestAvroModel;
 import com.food.ordering.system.kafka.order.avro.model.RestaurantOrderStatus;
+import com.food.ordering.system.order.service.domain.dto.message.PaymentResponse;
 import com.food.ordering.system.order.service.domain.entity.Order;
 import com.food.ordering.system.order.service.domain.event.OrderCancelledEvent;
 import com.food.ordering.system.order.service.domain.event.OrderCreatedEvent;
@@ -65,6 +68,21 @@ public class OrderMessagingDataMapper {
 			.setPrice(order.getPrice().getAmount())
 			.setCreatedAt(domainEvent.getCreatedAt().toInstant())
 			.setRestaurantOrderStatus(RestaurantOrderStatus.PAID)
+			.build();
+	}
+
+	public PaymentResponse paymentResponseAvroModelToPaymentResponse(
+			PaymentResponseAvroModel paymentResponseAvroModel) {
+		return PaymentResponse.builder()
+			.id(paymentResponseAvroModel.getId().toString())
+			.sagaId(paymentResponseAvroModel.getSagaId().toString())
+			.paymentId(paymentResponseAvroModel.getPaymentId().toString())
+			.customerId(paymentResponseAvroModel.getCustomerId().toString())
+			.orderId(paymentResponseAvroModel.getOrderId().toString())
+			.price(paymentResponseAvroModel.getPrice())
+			.createdAt(paymentResponseAvroModel.getCreatedAt())
+			.paymentStatus(PaymentStatus.valueOf(paymentResponseAvroModel.getPaymentStatus().name()))
+			.failureMessages(paymentResponseAvroModel.getFailureMessages())
 			.build();
 	}
 
