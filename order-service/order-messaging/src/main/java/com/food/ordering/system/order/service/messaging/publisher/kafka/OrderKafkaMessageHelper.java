@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
 import org.springframework.kafka.support.SendResult;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
@@ -15,7 +16,7 @@ public class OrderKafkaMessageHelper {
 			T requestAvroModel, String orderId, String requestAvroModelName) {
 		return new ListenableFutureCallback<SendResult<String, T>>() {
 			@Override
-			public void onFailure(Throwable ex) {
+			public void onFailure(@NonNull Throwable ex) {
 				log.error("Error while sending {} message {} to topic {}", requestAvroModelName,
 						requestAvroModel.toString(), responseTopicName, ex);
 			}
