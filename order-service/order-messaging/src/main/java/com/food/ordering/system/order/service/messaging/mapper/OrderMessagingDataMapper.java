@@ -27,10 +27,10 @@ public class OrderMessagingDataMapper {
 		Order order = orderCreatedEvent.getOrder();
 
 		return PaymentRequestAvroModel.newBuilder()
-			.setId(UUID.randomUUID())
-			.setSagaId(UUID.fromString(""))
-			.setCustomerId(order.getCustomerId().getValue())
-			.setOrderId(order.getId().getValue())
+			.setId(UUID.randomUUID().toString())
+			.setSagaId("")
+			.setCustomerId(order.getCustomerId().getValue().toString())
+			.setOrderId(order.getId().getValue().toString())
 			.setPrice(order.getPrice().getAmount())
 			.setCreatedAt(orderCreatedEvent.getCreatedAt().toInstant())
 			.setPaymentOrderStatus(PaymentOrderStatus.PENDING)
@@ -42,10 +42,10 @@ public class OrderMessagingDataMapper {
 		Order order = orderCancelledEvent.getOrder();
 
 		return PaymentRequestAvroModel.newBuilder()
-			.setId(UUID.randomUUID())
-			.setSagaId(UUID.fromString(""))
-			.setCustomerId(order.getCustomerId().getValue())
-			.setOrderId(order.getId().getValue())
+			.setId(UUID.randomUUID().toString())
+			.setSagaId("")
+			.setCustomerId(order.getCustomerId().getValue().toString())
+			.setOrderId(order.getId().getValue().toString())
 			.setPrice(order.getPrice().getAmount())
 			.setCreatedAt(orderCancelledEvent.getCreatedAt().toInstant())
 			.setPaymentOrderStatus(PaymentOrderStatus.CANCELLED)
@@ -57,10 +57,10 @@ public class OrderMessagingDataMapper {
 		Order order = domainEvent.getOrder();
 
 		return RestaurantApprovalRequestAvroModel.newBuilder()
-			.setId(UUID.randomUUID())
-			.setSagaId(UUID.fromString(""))
-			.setOrderId(order.getId().getValue())
-			.setRestaurantId(order.getRestaurantId().getValue())
+			.setId(UUID.randomUUID().toString())
+			.setSagaId("")
+			.setOrderId(order.getId().getValue().toString())
+			.setRestaurantId(order.getRestaurantId().getValue().toString())
 			.setProducts(order.getItems()
 				.stream()
 				.map(orderItem -> Product.newBuilder()
@@ -77,11 +77,11 @@ public class OrderMessagingDataMapper {
 	public PaymentResponse paymentResponseAvroModelToPaymentResponse(
 			PaymentResponseAvroModel paymentResponseAvroModel) {
 		return PaymentResponse.builder()
-			.id(paymentResponseAvroModel.getId().toString())
-			.sagaId(paymentResponseAvroModel.getSagaId().toString())
-			.paymentId(paymentResponseAvroModel.getPaymentId().toString())
-			.customerId(paymentResponseAvroModel.getCustomerId().toString())
-			.orderId(paymentResponseAvroModel.getOrderId().toString())
+			.id(paymentResponseAvroModel.getId())
+			.sagaId(paymentResponseAvroModel.getSagaId())
+			.paymentId(paymentResponseAvroModel.getPaymentId())
+			.customerId(paymentResponseAvroModel.getCustomerId())
+			.orderId(paymentResponseAvroModel.getOrderId())
 			.price(paymentResponseAvroModel.getPrice())
 			.createdAt(paymentResponseAvroModel.getCreatedAt())
 			.paymentStatus(PaymentStatus.valueOf(paymentResponseAvroModel.getPaymentStatus().name()))
@@ -92,10 +92,10 @@ public class OrderMessagingDataMapper {
 	public RestaurantApprovalResponse approvalResponseAvroModelToApprovalResponse(
 			RestaurantApprovalResponseAvroModel restaurantApprovalResponseAvroModel) {
 		return RestaurantApprovalResponse.builder()
-			.id(restaurantApprovalResponseAvroModel.getId().toString())
-			.sagaId(restaurantApprovalResponseAvroModel.getSagaId().toString())
-			.orderId(restaurantApprovalResponseAvroModel.getOrderId().toString())
-			.restaurantId(restaurantApprovalResponseAvroModel.getRestaurantId().toString())
+			.id(restaurantApprovalResponseAvroModel.getId())
+			.sagaId(restaurantApprovalResponseAvroModel.getSagaId())
+			.orderId(restaurantApprovalResponseAvroModel.getOrderId())
+			.restaurantId(restaurantApprovalResponseAvroModel.getRestaurantId())
 			.createdAt(restaurantApprovalResponseAvroModel.getCreatedAt())
 			.orderApprovalStatus(
 					OrderApprovalStatus.valueOf(restaurantApprovalResponseAvroModel.getOrderApprovalStatus().name()))

@@ -52,10 +52,7 @@
       "type": {
         "type": "enum",
         "name": "PaymentOrderStatus",
-        "symbols": [
-          "PENDING",
-          "CANCELLED"
-        ]
+        "symbols": ["PENDING", "CANCELLED"]
       }
     }
   ]
