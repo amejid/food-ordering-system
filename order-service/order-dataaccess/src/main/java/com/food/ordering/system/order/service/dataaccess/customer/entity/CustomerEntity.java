@@ -17,7 +17,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "order_customers_m_view", schema = "customer")
+@Table(name = "order_customer_m_view", schema = "customer")
 @Entity
 public class CustomerEntity {
 
