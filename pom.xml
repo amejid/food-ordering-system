@@ -22,7 +22,6 @@
         <module>infrastructure</module>
         <module>customer-service</module>
         <module>payment-service</module>
-        <module>payment-service/payment-domain</module>
     </modules>
 
     <properties>
@@ -61,6 +60,11 @@
             <dependency>
                 <groupId>com.food.ordering.system</groupId>
                 <artifactId>order-messaging</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.food.ordering.system</groupId>
+                <artifactId>payment-domain-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

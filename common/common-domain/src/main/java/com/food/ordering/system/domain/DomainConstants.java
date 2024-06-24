@@ -1,6 +1,6 @@
 package com.food.ordering.system.domain;
 
-public class DomainConstants {
+public final class DomainConstants {
 
 	private DomainConstants() {
 	}
