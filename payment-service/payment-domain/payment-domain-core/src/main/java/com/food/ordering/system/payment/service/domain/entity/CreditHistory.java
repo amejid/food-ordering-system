@@ -50,7 +50,7 @@ public final class CreditHistory extends BaseEntity<CreditHistoryId> {
 		private Builder() {
 		}
 
-		public Builder id(CreditHistoryId val) {
+		public Builder creditHistoryId(CreditHistoryId val) {
 			this.creditHistoryId = val;
 			return this;
 		}
