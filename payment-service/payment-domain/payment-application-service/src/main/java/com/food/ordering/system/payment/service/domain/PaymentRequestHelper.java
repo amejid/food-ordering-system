@@ -19,7 +19,6 @@ import com.food.ordering.system.payment.service.domain.ports.output.message.publ
 import com.food.ordering.system.payment.service.domain.ports.output.repository.CreditEntryRepository;
 import com.food.ordering.system.payment.service.domain.ports.output.repository.CreditHistoryRepository;
 import com.food.ordering.system.payment.service.domain.ports.output.repository.PaymentRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
@@ -27,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class PaymentRequestHelper {
 
 	private final PaymentDomainService paymentDomainService;
@@ -45,6 +43,22 @@ public class PaymentRequestHelper {
 	private final PaymentCancelledMessagePublisher paymentCancelledEventDomainEventPublisher;
 
 	private final PaymentFailedMessagePublisher paymentFailedEventDomainEventPublisher;
+
+	public PaymentRequestHelper(PaymentDomainService paymentDomainService, PaymentDataMapper paymentDataMapper,
+			PaymentRepository paymentRepository, CreditEntryRepository creditEntryRepository,
+			CreditHistoryRepository creditHistoryRepository,
+			PaymentCompletedMessagePublisher paymentCompletedEventDomainEventPublisher,
+			PaymentCancelledMessagePublisher paymentCancelledEventDomainEventPublisher,
+			PaymentFailedMessagePublisher paymentFailedEventDomainEventPublisher) {
+		this.paymentDomainService = paymentDomainService;
+		this.paymentDataMapper = paymentDataMapper;
+		this.paymentRepository = paymentRepository;
+		this.creditEntryRepository = creditEntryRepository;
+		this.creditHistoryRepository = creditHistoryRepository;
+		this.paymentCompletedEventDomainEventPublisher = paymentCompletedEventDomainEventPublisher;
+		this.paymentCancelledEventDomainEventPublisher = paymentCancelledEventDomainEventPublisher;
+		this.paymentFailedEventDomainEventPublisher = paymentFailedEventDomainEventPublisher;
+	}
 
 	@Transactional
 	public PaymentEvent persistPayment(PaymentRequest paymentRequest) {

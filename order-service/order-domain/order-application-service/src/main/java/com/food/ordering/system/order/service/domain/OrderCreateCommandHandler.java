@@ -5,14 +5,12 @@ import com.food.ordering.system.order.service.domain.dto.create.CreateOrderRespo
 import com.food.ordering.system.order.service.domain.event.OrderCreatedEvent;
 import com.food.ordering.system.order.service.domain.mapper.OrderDataMapper;
 import com.food.ordering.system.order.service.domain.ports.output.message.publisher.payment.OrderCreatedPaymentRequestMessagePublisher;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class OrderCreateCommandHandler {
 
 	private final OrderCreateHelper orderCreateHelper;
@@ -20,6 +18,13 @@ public class OrderCreateCommandHandler {
 	private final OrderDataMapper orderDataMapper;
 
 	private final OrderCreatedPaymentRequestMessagePublisher orderCreatedPaymentRequestMessagePublisher;
+
+	public OrderCreateCommandHandler(OrderCreateHelper orderCreateHelper, OrderDataMapper orderDataMapper,
+			OrderCreatedPaymentRequestMessagePublisher orderCreatedPaymentRequestMessagePublisher) {
+		this.orderCreateHelper = orderCreateHelper;
+		this.orderDataMapper = orderDataMapper;
+		this.orderCreatedPaymentRequestMessagePublisher = orderCreatedPaymentRequestMessagePublisher;
+	}
 
 	public CreateOrderResponse createOrder(CreateOrderCommand createOrderCommand) {
 		OrderCreatedEvent orderCreatedEvent = this.orderCreateHelper.persistOrder(createOrderCommand);

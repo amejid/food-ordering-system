@@ -6,7 +6,6 @@ import java.util.Map;
 
 import com.food.ordering.system.kafka.config.data.KafkaConfigData;
 import com.food.ordering.system.kafka.config.data.KafkaProducerConfigData;
-import lombok.RequiredArgsConstructor;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
@@ -17,12 +16,16 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
 @Configuration
-@RequiredArgsConstructor
 public class KafkaProducerConfig<K extends Serializable, V extends SpecificRecordBase> {
 
 	private final KafkaConfigData kafkaConfigData;
 
 	private final KafkaProducerConfigData kafkaProducerConfigData;
+
+	public KafkaProducerConfig(KafkaConfigData kafkaConfigData, KafkaProducerConfigData kafkaProducerConfigData) {
+		this.kafkaConfigData = kafkaConfigData;
+		this.kafkaProducerConfigData = kafkaProducerConfigData;
+	}
 
 	@Bean
 	public Map<String, Object> producerConfig() {

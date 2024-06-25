@@ -6,7 +6,6 @@ import javax.annotation.PreDestroy;
 
 import com.food.ordering.system.kafka.producer.exception.KafkaProducerException;
 import com.food.ordering.system.kafka.producer.service.KafkaProducer;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 
@@ -19,10 +18,13 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class KafkaProducerImpl<K extends Serializable, V extends SpecificRecordBase> implements KafkaProducer<K, V> {
 
 	private final KafkaTemplate<K, V> kafkaTemplate;
+
+	public KafkaProducerImpl(KafkaTemplate<K, V> kafkaTemplate) {
+		this.kafkaTemplate = kafkaTemplate;
+	}
 
 	@Override
 	public void send(String topicName, K key, V message, ListenableFutureCallback<SendResult<K, V>> callback) {

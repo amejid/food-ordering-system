@@ -6,14 +6,12 @@ import com.food.ordering.system.order.service.domain.config.OrderServiceConfigDa
 import com.food.ordering.system.order.service.domain.event.OrderCreatedEvent;
 import com.food.ordering.system.order.service.domain.ports.output.message.publisher.payment.OrderCreatedPaymentRequestMessagePublisher;
 import com.food.ordering.system.order.service.messaging.mapper.OrderMessagingDataMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class CreateOrderKafkaMessagePublisher implements OrderCreatedPaymentRequestMessagePublisher {
 
 	private final OrderMessagingDataMapper orderMessagingDataMapper;
@@ -23,6 +21,15 @@ public class CreateOrderKafkaMessagePublisher implements OrderCreatedPaymentRequ
 	private final KafkaProducer<String, PaymentRequestAvroModel> kafkaProducer;
 
 	private final OrderKafkaMessageHelper orderKafkaMessageHelper;
+
+	public CreateOrderKafkaMessagePublisher(OrderMessagingDataMapper orderMessagingDataMapper,
+			OrderServiceConfigData orderServiceConfigData, KafkaProducer<String, PaymentRequestAvroModel> kafkaProducer,
+			OrderKafkaMessageHelper orderKafkaMessageHelper) {
+		this.orderMessagingDataMapper = orderMessagingDataMapper;
+		this.orderServiceConfigData = orderServiceConfigData;
+		this.kafkaProducer = kafkaProducer;
+		this.orderKafkaMessageHelper = orderKafkaMessageHelper;
+	}
 
 	@Override
 	public void publish(OrderCreatedEvent domainEvent) {

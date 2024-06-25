@@ -6,7 +6,6 @@ import java.util.Map;
 
 import com.food.ordering.system.kafka.config.data.KafkaConfigData;
 import com.food.ordering.system.kafka.config.data.KafkaConsumerConfigData;
-import lombok.RequiredArgsConstructor;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
@@ -19,12 +18,16 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 
 @Configuration
-@RequiredArgsConstructor
 public class KafkaConsumerConfig<K extends Serializable, V extends SpecificRecordBase> {
 
 	private final KafkaConfigData kafkaConfigData;
 
 	private final KafkaConsumerConfigData kafkaConsumerConfigData;
+
+	public KafkaConsumerConfig(KafkaConfigData kafkaConfigData, KafkaConsumerConfigData kafkaConsumerConfigData) {
+		this.kafkaConfigData = kafkaConfigData;
+		this.kafkaConsumerConfigData = kafkaConsumerConfigData;
+	}
 
 	@Bean
 	public Map<String, Object> consumerConfig() {
