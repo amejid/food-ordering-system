@@ -1,4 +1,4 @@
-package com.food.ordering.system.order.service.dataaccess.restaurant.entity;
+package com.food.ordering.system.dataaccess.restaurant.entity;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -38,6 +38,8 @@ public class RestaurantEntity {
 	private String productName;
 
 	private BigDecimal productPrice;
+
+	private Boolean productAvailable;
 
 	@Override
 	public boolean equals(Object o) {
