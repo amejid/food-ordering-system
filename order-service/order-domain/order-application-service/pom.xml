@@ -11,8 +11,6 @@
 
     <artifactId>order-application-service</artifactId>
 
-    <properties>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>com.food.ordering.system</groupId>
@@ -46,5 +44,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
