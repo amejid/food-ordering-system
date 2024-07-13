@@ -1,5 +1,7 @@
 package com.food.ordering.system.order.service.dataaccess.order.mapper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.food.ordering.system.domain.valueobject.CustomerId;
@@ -52,8 +54,9 @@ public class OrderDataAccessMapper {
 			.items(orderItemEntitiesToOrderItems(orderEntity.getItems()))
 			.trackingId(new TrackingId(orderEntity.getTrackingId()))
 			.orderStatus(orderEntity.getOrderStatus())
-			.failureMessages((orderEntity.getFailureMessages() != null && !orderEntity.getFailureMessages().isBlank())
-					? List.of(orderEntity.getFailureMessages().split(Order.FAILURE_MESSAGE_DELIMITER)) : List.of())
+			.failureMessages(orderEntity.getFailureMessages().isEmpty() ? new ArrayList<>()
+					: new ArrayList<>(
+							Arrays.asList(orderEntity.getFailureMessages().split(Order.FAILURE_MESSAGE_DELIMITER))))
 			.build();
 	}
 
