@@ -1,14 +1,19 @@
 package com.food.ordering.system.payment.service.messaging.listener.kafka;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import com.food.ordering.system.kafka.consumer.KafkaConsumer;
 import com.food.ordering.system.kafka.order.avro.model.PaymentOrderStatus;
 import com.food.ordering.system.kafka.order.avro.model.PaymentRequestAvroModel;
+import com.food.ordering.system.payment.service.domain.exception.PaymentApplicationServiceException;
+import com.food.ordering.system.payment.service.domain.exception.PaymentNotFoundException;
 import com.food.ordering.system.payment.service.domain.ports.input.message.listener.PaymentRequestMessageListener;
 import com.food.ordering.system.payment.service.messaging.mapper.PaymentMessagingDataMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.postgresql.util.PSQLState;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -41,15 +46,34 @@ public class PaymentRequestKafkaListener implements KafkaConsumer<PaymentRequest
 				messages.size(), keys.toString(), partitions.toString(), offsets.toString());
 
 		messages.forEach(paymentRequestAvroModel -> {
-			if (PaymentOrderStatus.PENDING == paymentRequestAvroModel.getPaymentOrderStatus()) {
-				log.info("Processing payment for order id: {}", paymentRequestAvroModel.getOrderId());
-				this.paymentRequestMessageListener.completePayment(this.paymentMessagingDataMapper
-					.paymentRequestAvroModelToPaymentRequest(paymentRequestAvroModel));
+			try {
+				if (PaymentOrderStatus.PENDING == paymentRequestAvroModel.getPaymentOrderStatus()) {
+					log.info("Processing payment for order id: {}", paymentRequestAvroModel.getOrderId());
+					this.paymentRequestMessageListener.completePayment(this.paymentMessagingDataMapper
+						.paymentRequestAvroModelToPaymentRequest(paymentRequestAvroModel));
+				}
+				else if (PaymentOrderStatus.CANCELLED == paymentRequestAvroModel.getPaymentOrderStatus()) {
+					log.info("Cancelling payment for order id: {}", paymentRequestAvroModel.getOrderId());
+					this.paymentRequestMessageListener.cancelPayment(this.paymentMessagingDataMapper
+						.paymentRequestAvroModelToPaymentRequest(paymentRequestAvroModel));
+				}
 			}
-			else if (PaymentOrderStatus.CANCELLED == paymentRequestAvroModel.getPaymentOrderStatus()) {
-				log.info("Cancelling payment for order id: {}", paymentRequestAvroModel.getOrderId());
-				this.paymentRequestMessageListener.cancelPayment(this.paymentMessagingDataMapper
-					.paymentRequestAvroModelToPaymentRequest(paymentRequestAvroModel));
+			catch (DataAccessException ex) {
+				SQLException sqlException = (SQLException) ex.getRootCause();
+				if (sqlException != null && sqlException.getSQLState() != null
+						&& PSQLState.UNIQUE_VIOLATION.getState().equals(sqlException.getSQLState())) {
+					log.error(
+							"Caught unique constraint exception with sql state: {} in PaymentRequestKafkaListener for order id: {}",
+							sqlException.getSQLState(), paymentRequestAvroModel.getOrderId());
+				}
+				else {
+					throw new PaymentApplicationServiceException(
+							"Throwing DataAccessException in PaymentRequestKafkaListener " + ex.getMessage(), ex);
+				}
+			}
+			catch (PaymentNotFoundException ex) {
+				// NO-OP
+				log.error("No payment found for order id: {}", paymentRequestAvroModel.getOrderId());
 			}
 		});
 	}
