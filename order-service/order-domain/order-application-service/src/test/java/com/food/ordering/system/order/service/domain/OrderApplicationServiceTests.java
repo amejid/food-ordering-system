@@ -152,8 +152,7 @@ class OrderApplicationServiceTests {
 						.build()))
 			.build();
 
-		Customer customer = new Customer();
-		customer.setId(new CustomerId(this.CUSTOMER_ID));
+		Customer customer = new Customer(new CustomerId(this.CUSTOMER_ID));
 
 		Restaurant restaurantResponse = Restaurant.builder()
 			.restaurantId(new RestaurantId(this.createOrderCommand.getRestaurantId()))

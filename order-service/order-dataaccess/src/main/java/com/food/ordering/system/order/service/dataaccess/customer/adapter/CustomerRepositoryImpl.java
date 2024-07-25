@@ -9,6 +9,7 @@ import com.food.ordering.system.order.service.domain.entity.Customer;
 import com.food.ordering.system.order.service.domain.ports.output.repository.CustomerRepository;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class CustomerRepositoryImpl implements CustomerRepository {
@@ -27,6 +28,13 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 	public Optional<Customer> findCustomer(UUID customerId) {
 		return this.customerJpaRepository.findById(customerId)
 			.map(this.customerDataAccessMapper::customerEntityToCustomer);
+	}
+
+	@Transactional
+	@Override
+	public Customer save(Customer customer) {
+		return this.customerDataAccessMapper.customerEntityToCustomer(
+				this.customerJpaRepository.save(this.customerDataAccessMapper.customerToCustomerEntity(customer)));
 	}
 
 }
