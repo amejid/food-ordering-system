@@ -9,10 +9,10 @@ import java.util.UUID;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.food.ordering.system.domain.DomainConstants;
+import com.food.ordering.system.domain.event.payload.RestaurantOrderEventPayload;
 import com.food.ordering.system.domain.valueobject.OrderApprovalStatus;
 import com.food.ordering.system.outbox.OutboxStatus;
 import com.food.ordering.system.restaurant.service.domain.exception.RestaurantDomainException;
-import com.food.ordering.system.restaurant.service.domain.outbox.model.OrderEventPayload;
 import com.food.ordering.system.restaurant.service.domain.outbox.model.OrderOutboxMessage;
 import com.food.ordering.system.restaurant.service.domain.ports.output.repository.OrderOutboxRepository;
 import com.food.ordering.system.saga.order.SagaConstants;
@@ -52,8 +52,8 @@ public class OrderOutboxHelper {
 	}
 
 	@Transactional
-	public void saveOrderOutboxMessage(OrderEventPayload orderEventPayload, OrderApprovalStatus approvalStatus,
-			OutboxStatus outboxStatus, UUID sagaId) {
+	public void saveOrderOutboxMessage(RestaurantOrderEventPayload orderEventPayload,
+			OrderApprovalStatus approvalStatus, OutboxStatus outboxStatus, UUID sagaId) {
 		save(OrderOutboxMessage.builder()
 			.id(UUID.randomUUID())
 			.sagaId(sagaId)
@@ -81,7 +81,7 @@ public class OrderOutboxHelper {
 		log.info("OrderOutboxMessage saved with id: {}", orderPaymentOutboxMessage.getId());
 	}
 
-	private String createPayload(OrderEventPayload orderEventPayload) {
+	private String createPayload(RestaurantOrderEventPayload orderEventPayload) {
 		try {
 			return this.objectMapper.writeValueAsString(orderEventPayload);
 		}

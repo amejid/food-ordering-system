@@ -2,6 +2,7 @@ package com.food.ordering.system.restaurant.service.domain.mapper;
 
 import java.util.UUID;
 
+import com.food.ordering.system.domain.event.payload.RestaurantOrderEventPayload;
 import com.food.ordering.system.domain.valueobject.Money;
 import com.food.ordering.system.domain.valueobject.OrderId;
 import com.food.ordering.system.domain.valueobject.OrderStatus;
@@ -11,7 +12,6 @@ import com.food.ordering.system.restaurant.service.domain.entity.OrderDetail;
 import com.food.ordering.system.restaurant.service.domain.entity.Product;
 import com.food.ordering.system.restaurant.service.domain.entity.Restaurant;
 import com.food.ordering.system.restaurant.service.domain.event.OrderApprovalEvent;
-import com.food.ordering.system.restaurant.service.domain.outbox.model.OrderEventPayload;
 
 import org.springframework.stereotype.Component;
 
@@ -36,8 +36,8 @@ public class RestaurantDataMapper {
 			.build();
 	}
 
-	public OrderEventPayload orderApprovalEventToOrderEventPayload(OrderApprovalEvent orderApprovalEvent) {
-		return OrderEventPayload.builder()
+	public RestaurantOrderEventPayload orderApprovalEventToOrderEventPayload(OrderApprovalEvent orderApprovalEvent) {
+		return RestaurantOrderEventPayload.builder()
 			.orderId(orderApprovalEvent.getOrderApproval().getOrderId().getValue().toString())
 			.restaurantId(orderApprovalEvent.getRestaurantId().getValue().toString())
 			.orderApprovalStatus(orderApprovalEvent.getOrderApproval().getApprovalStatus().name())

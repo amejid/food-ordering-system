@@ -3,12 +3,16 @@ package com.food.ordering.system.restaurant.service.messaging.listener.kafka;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.food.ordering.system.domain.event.payload.OrderApprovalEventPayload;
 import com.food.ordering.system.kafka.consumer.KafkaConsumer;
-import com.food.ordering.system.kafka.order.avro.model.RestaurantApprovalRequestAvroModel;
+import com.food.ordering.system.kafka.producer.KafkaMessageHelper;
+import com.food.ordering.system.messaging.DebeziumOp;
 import com.food.ordering.system.restaurant.service.domain.exception.RestaurantApplicationServiceException;
 import com.food.ordering.system.restaurant.service.domain.exception.RestaurantNotFoundException;
 import com.food.ordering.system.restaurant.service.domain.ports.input.message.listener.RestaurantApprovalRequestMessageListener;
 import com.food.ordering.system.restaurant.service.messaging.mapper.RestaurantMessagingDataMapper;
+import debezium.order.restaurant_approval_outbox.Envelope;
+import debezium.order.restaurant_approval_outbox.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.postgresql.util.PSQLState;
 
@@ -21,57 +25,65 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class RestaurantApprovalRequestKafkaListener implements KafkaConsumer<RestaurantApprovalRequestAvroModel> {
+public class RestaurantApprovalRequestKafkaListener implements KafkaConsumer<Envelope> {
 
 	private final RestaurantApprovalRequestMessageListener restaurantApprovalRequestMessageListener;
 
 	private final RestaurantMessagingDataMapper restaurantMessagingDataMapper;
 
+	private final KafkaMessageHelper kafkaMessageHelper;
+
 	public RestaurantApprovalRequestKafkaListener(
 			RestaurantApprovalRequestMessageListener restaurantApprovalRequestMessageListener,
-			RestaurantMessagingDataMapper restaurantMessagingDataMapper) {
+			RestaurantMessagingDataMapper restaurantMessagingDataMapper, KafkaMessageHelper kafkaMessageHelper) {
 		this.restaurantApprovalRequestMessageListener = restaurantApprovalRequestMessageListener;
 		this.restaurantMessagingDataMapper = restaurantMessagingDataMapper;
+		this.kafkaMessageHelper = kafkaMessageHelper;
 	}
 
 	@Override
 	@KafkaListener(id = "${kafka-consumer-config.restaurant-approval-consumer-group-id}",
 			topics = "${restaurant-service.restaurant-approval-request-topic-name}")
-	public void receive(@Payload List<RestaurantApprovalRequestAvroModel> messages,
-			@Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<String> keys,
+	public void receive(@Payload List<Envelope> messages, @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<String> keys,
 			@Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partitions,
 			@Header(KafkaHeaders.OFFSET) List<Long> offsets) {
-		log.info(
-				"{} number of orders approval requests received with keys {}, partitions {} and offsets {}"
-						+ ", sending for restaurant approval",
-				messages.size(), keys.toString(), partitions.toString(), offsets.toString());
+		log.info("{} number of restaurant approval requests responses received!", messages.stream()
+			.filter(message -> message.getBefore() == null && DebeziumOp.CREATE.getValue().equals(message.getOp()))
+			.toList()
+			.size());
 
-		messages.forEach(restaurantApprovalRequestAvroModel -> {
-			try {
-				log.info("Processing order approval for order id: {}", restaurantApprovalRequestAvroModel.getOrderId());
-				this.restaurantApprovalRequestMessageListener.approveOrder(this.restaurantMessagingDataMapper
-					.restaurantApprovalRequestAvroModelToRestaurantApproval(restaurantApprovalRequestAvroModel));
-			}
-			catch (DataAccessException ex) {
-				SQLException sqlException = (SQLException) ex.getRootCause();
-				if (sqlException != null && sqlException.getSQLState() != null
-						&& PSQLState.UNIQUE_VIOLATION.getState().equals(sqlException.getSQLState())) {
-					// NO-OP for unique constraint exception
-					log.error(
-							"Caught unique constraint exception with sql state: {} "
-									+ "in RestaurantApprovalRequestKafkaListener for order id: {}",
-							sqlException.getSQLState(), restaurantApprovalRequestAvroModel.getOrderId());
+		messages.forEach(avroModel -> {
+			if (avroModel.getBefore() == null && DebeziumOp.CREATE.getValue().equals(avroModel.getOp())) {
+				log.info("Incoming message in RestaurantApprovalRequestKafkaListener: {}", avroModel);
+				Value restaurantApprovalRequestAvroModel = avroModel.getAfter();
+				OrderApprovalEventPayload orderApprovalEventPayload = this.kafkaMessageHelper.getOrderEventPayload(
+						restaurantApprovalRequestAvroModel.getPayload(), OrderApprovalEventPayload.class);
+				try {
+					log.info("Processing order approval for order id: {}", orderApprovalEventPayload.getOrderId());
+					this.restaurantApprovalRequestMessageListener.approveOrder(
+							this.restaurantMessagingDataMapper.restaurantApprovalRequestAvroModelToRestaurantApproval(
+									orderApprovalEventPayload, restaurantApprovalRequestAvroModel));
 				}
-				else {
-					throw new RestaurantApplicationServiceException("Throwing DataAccessException in"
-							+ " RestaurantApprovalRequestKafkaListener: " + ex.getMessage(), ex);
+				catch (DataAccessException ex) {
+					SQLException sqlException = (SQLException) ex.getRootCause();
+					if (sqlException != null && sqlException.getSQLState() != null
+							&& PSQLState.UNIQUE_VIOLATION.getState().equals(sqlException.getSQLState())) {
+						// NO-OP for unique constraint exception
+						log.error(
+								"Caught unique constraint exception with sql state: {} "
+										+ "in RestaurantApprovalRequestKafkaListener for order id: {}",
+								sqlException.getSQLState(), orderApprovalEventPayload.getOrderId());
+					}
+					else {
+						throw new RestaurantApplicationServiceException("Throwing DataAccessException in"
+								+ " RestaurantApprovalRequestKafkaListener: " + ex.getMessage(), ex);
+					}
 				}
-			}
-			catch (RestaurantNotFoundException ex) {
-				// NO-OP for RestaurantNotFoundException
-				log.error("No restaurant found for restaurant id: {}, and order id: {}",
-						restaurantApprovalRequestAvroModel.getRestaurantId(),
-						restaurantApprovalRequestAvroModel.getOrderId());
+				catch (RestaurantNotFoundException ex) {
+					// NO-OP for RestaurantNotFoundException
+					log.error("No restaurant found for restaurant id: {}, and order id: {}",
+							orderApprovalEventPayload.getRestaurantId(), orderApprovalEventPayload.getOrderId());
+				}
 			}
 		});
 	}

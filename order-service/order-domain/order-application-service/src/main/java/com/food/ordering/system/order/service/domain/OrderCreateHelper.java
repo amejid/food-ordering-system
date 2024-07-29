@@ -75,7 +75,7 @@ public class OrderCreateHelper {
 		}
 	}
 
-	private Order saveOrder(Order order) {
+	private void saveOrder(Order order) {
 		Order orderResult = this.orderRepository.save(order);
 
 		if (orderResult == null) {
@@ -84,7 +84,6 @@ public class OrderCreateHelper {
 		}
 
 		log.info("Order is saved with id: {}", orderResult.getId().getValue());
-		return orderResult;
 	}
 
 }

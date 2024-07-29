@@ -31,7 +31,7 @@ public class CustomerMessageListenerImpl implements CustomerMessageListener {
 			throw new OrderDomainException(
 					"Customer could not be created in order database with id " + customerModel.getId());
 		}
-		log.info("Customer is created in order database with id: {}", customer.getId());
+		log.info("Customer is created in order database with id: {}", customer.getId().getValue());
 	}
 
 }

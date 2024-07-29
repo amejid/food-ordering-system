@@ -18,7 +18,6 @@ import com.food.ordering.system.payment.service.domain.exception.PaymentNotFound
 import com.food.ordering.system.payment.service.domain.mapper.PaymentDataMapper;
 import com.food.ordering.system.payment.service.domain.outbox.model.OrderOutboxMessage;
 import com.food.ordering.system.payment.service.domain.outbox.scheduler.OrderOutboxHelper;
-import com.food.ordering.system.payment.service.domain.ports.output.message.publisher.PaymentResponseMessagePublisher;
 import com.food.ordering.system.payment.service.domain.ports.output.repository.CreditEntryRepository;
 import com.food.ordering.system.payment.service.domain.ports.output.repository.CreditHistoryRepository;
 import com.food.ordering.system.payment.service.domain.ports.output.repository.PaymentRepository;
@@ -43,24 +42,20 @@ public class PaymentRequestHelper {
 
 	private final OrderOutboxHelper orderOutboxHelper;
 
-	private final PaymentResponseMessagePublisher paymentResponseMessagePublisher;
-
 	public PaymentRequestHelper(PaymentDomainService paymentDomainService, PaymentDataMapper paymentDataMapper,
 			PaymentRepository paymentRepository, CreditEntryRepository creditEntryRepository,
-			CreditHistoryRepository creditHistoryRepository, OrderOutboxHelper orderOutboxHelper,
-			PaymentResponseMessagePublisher paymentResponseMessagePublisher) {
+			CreditHistoryRepository creditHistoryRepository, OrderOutboxHelper orderOutboxHelper) {
 		this.paymentDomainService = paymentDomainService;
 		this.paymentDataMapper = paymentDataMapper;
 		this.paymentRepository = paymentRepository;
 		this.creditEntryRepository = creditEntryRepository;
 		this.creditHistoryRepository = creditHistoryRepository;
 		this.orderOutboxHelper = orderOutboxHelper;
-		this.paymentResponseMessagePublisher = paymentResponseMessagePublisher;
 	}
 
 	@Transactional
 	public void persistPayment(PaymentRequest paymentRequest) {
-		if (publishIfOutboxMessageProcessedForPayment(paymentRequest, PaymentStatus.COMPLETED)) {
+		if (isOutboxMessageProcessedForPayment(paymentRequest, PaymentStatus.COMPLETED)) {
 			log.info("An outbox message with saga id: {} is already saved to database!", paymentRequest.getSagaId());
 			return;
 		}
@@ -82,7 +77,7 @@ public class PaymentRequestHelper {
 	}
 
 	public void persistCancelPayment(PaymentRequest paymentRequest) {
-		if (publishIfOutboxMessageProcessedForPayment(paymentRequest, PaymentStatus.CANCELLED)) {
+		if (isOutboxMessageProcessedForPayment(paymentRequest, PaymentStatus.CANCELLED)) {
 			log.info("An outbox message with saga id: {} is already saved to database!", paymentRequest.getSagaId());
 			return;
 		}
@@ -142,19 +137,12 @@ public class PaymentRequestHelper {
 		}
 	}
 
-	private boolean publishIfOutboxMessageProcessedForPayment(PaymentRequest paymentRequest,
-			PaymentStatus paymentStatus) {
+	private boolean isOutboxMessageProcessedForPayment(PaymentRequest paymentRequest, PaymentStatus paymentStatus) {
 		Optional<OrderOutboxMessage> orderOutboxMessage = this.orderOutboxHelper
 			.getCompletedOrderOutboxMessageBySagaIdAndPaymentStatus(UUID.fromString(paymentRequest.getSagaId()),
 					paymentStatus);
 
-		if (orderOutboxMessage.isPresent()) {
-			this.paymentResponseMessagePublisher.publish(orderOutboxMessage.get(),
-					this.orderOutboxHelper::updateOutboxMessage);
-			return true;
-		}
-
-		return false;
+		return orderOutboxMessage.isPresent();
 	}
 
 }
