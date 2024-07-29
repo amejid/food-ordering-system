@@ -16,6 +16,7 @@ public class CreditEntryDataAccessMapper {
 			.creditEntryId(new CreditEntryId(creditEntryEntity.getId()))
 			.customerId(new CustomerId(creditEntryEntity.getCustomerId()))
 			.totalCreditAmount(new Money(creditEntryEntity.getTotalCreditAmount()))
+			.version(creditEntryEntity.getVersion())
 			.build();
 	}
 
@@ -24,6 +25,7 @@ public class CreditEntryDataAccessMapper {
 			.id(creditEntry.getId().getValue())
 			.customerId(creditEntry.getCustomerId().getValue())
 			.totalCreditAmount(creditEntry.getTotalCreditAmount().getAmount())
+			.version(creditEntry.getVersion())
 			.build();
 	}
 

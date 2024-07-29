@@ -11,4 +11,6 @@ public interface CreditEntryRepository {
 
 	Optional<CreditEntry> findByCustomerId(CustomerId customerId);
 
+	void detach(CustomerId customerId);
+
 }

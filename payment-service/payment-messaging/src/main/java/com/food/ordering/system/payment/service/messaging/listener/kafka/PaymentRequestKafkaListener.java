@@ -81,6 +81,10 @@ public class PaymentRequestKafkaListener implements KafkaSingleItemConsumer<Enve
 				// NO-OP
 				log.error("No payment found for order id: {}", orderPaymentEventPayload.getOrderId());
 			}
+			catch (Exception ex) {
+				throw new PaymentApplicationServiceException(
+						"Throwing unexpected exception in PaymentRequestKafkaListener: " + ex.getMessage(), ex);
+			}
 		}
 	}
 

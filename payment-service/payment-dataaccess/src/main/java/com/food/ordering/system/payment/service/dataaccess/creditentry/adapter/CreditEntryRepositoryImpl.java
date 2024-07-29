@@ -2,6 +2,8 @@ package com.food.ordering.system.payment.service.dataaccess.creditentry.adapter;
 
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import com.food.ordering.system.domain.valueobject.CustomerId;
 import com.food.ordering.system.payment.service.dataaccess.creditentry.mapper.CreditEntryDataAccessMapper;
 import com.food.ordering.system.payment.service.dataaccess.creditentry.repository.CreditEntryJpaRepository;
@@ -17,10 +19,13 @@ public class CreditEntryRepositoryImpl implements CreditEntryRepository {
 
 	private final CreditEntryDataAccessMapper creditEntryDataAccessMapper;
 
+	private final EntityManager entityManager;
+
 	public CreditEntryRepositoryImpl(CreditEntryJpaRepository creditEntryJpaRepository,
-			CreditEntryDataAccessMapper creditEntryDataAccessMapper) {
+			CreditEntryDataAccessMapper creditEntryDataAccessMapper, EntityManager entityManager) {
 		this.creditEntryJpaRepository = creditEntryJpaRepository;
 		this.creditEntryDataAccessMapper = creditEntryDataAccessMapper;
+		this.entityManager = entityManager;
 	}
 
 	@Override
@@ -33,6 +38,11 @@ public class CreditEntryRepositoryImpl implements CreditEntryRepository {
 	public Optional<CreditEntry> findByCustomerId(CustomerId customerId) {
 		return this.creditEntryJpaRepository.findByCustomerId(customerId.getValue())
 			.map(this.creditEntryDataAccessMapper::creditEntryEntityToCreditEntry);
+	}
+
+	@Override
+	public void detach(CustomerId customerId) {
+		this.entityManager.detach(this.creditEntryJpaRepository.findByCustomerId(customerId.getValue()).orElseThrow());
 	}
 
 }

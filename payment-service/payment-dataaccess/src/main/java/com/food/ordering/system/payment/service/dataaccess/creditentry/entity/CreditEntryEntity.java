@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,6 +30,9 @@ public class CreditEntryEntity {
 	private UUID customerId;
 
 	private BigDecimal totalCreditAmount;
+
+	@Version
+	private int version;
 
 	@Override
 	public boolean equals(Object o) {
