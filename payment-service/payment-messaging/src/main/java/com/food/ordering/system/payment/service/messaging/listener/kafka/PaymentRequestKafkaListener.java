@@ -43,8 +43,8 @@ public class PaymentRequestKafkaListener implements KafkaSingleItemConsumer<Enve
 	@Override
 	@KafkaListener(id = "${kafka-consumer-config.payment-consumer-group-id}",
 			topics = "${payment-service.payment-request-topic-name}")
-	public void receive(@Payload Envelope message, @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) String key,
-			@Header(KafkaHeaders.RECEIVED_PARTITION_ID) Integer partition, @Header(KafkaHeaders.OFFSET) Long offset) {
+	public void receive(@Payload Envelope message, @Header(KafkaHeaders.RECEIVED_KEY) String key,
+			@Header(KafkaHeaders.RECEIVED_PARTITION) Integer partition, @Header(KafkaHeaders.OFFSET) Long offset) {
 
 		if (message.getBefore() == null && DebeziumOp.CREATE.getValue().equals(message.getOp())) {
 			log.info("Incoming message in PaymentRequestKafkaListener: {} with key: {}, partition: {} and offset: {}",

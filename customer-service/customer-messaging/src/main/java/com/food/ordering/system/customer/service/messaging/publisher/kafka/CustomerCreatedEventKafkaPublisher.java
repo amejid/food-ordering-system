@@ -1,5 +1,7 @@
 package com.food.ordering.system.customer.service.messaging.publisher.kafka;
 
+import java.util.function.BiConsumer;
+
 import com.food.ordering.system.customer.service.domain.config.CustomerServiceConfigData;
 import com.food.ordering.system.customer.service.domain.event.CustomerCreatedEvent;
 import com.food.ordering.system.customer.service.domain.ports.output.message.publisher.CustomerMessagePublisher;
@@ -10,9 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
 import org.springframework.kafka.support.SendResult;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 @Slf4j
 @Component
@@ -52,20 +52,17 @@ public class CustomerCreatedEventKafkaPublisher implements CustomerMessagePublis
 		}
 	}
 
-	private ListenableFutureCallback<SendResult<String, CustomerAvroModel>> getCallback(String topicName,
+	private BiConsumer<SendResult<String, CustomerAvroModel>, Throwable> getCallback(String topicName,
 			CustomerAvroModel message) {
-		return new ListenableFutureCallback<>() {
-			@Override
-			public void onFailure(@NonNull Throwable throwable) {
-				log.error("Error while sending message {} to topic {}", message.toString(), topicName, throwable);
-			}
-
-			@Override
-			public void onSuccess(SendResult<String, CustomerAvroModel> result) {
+		return (result, ex) -> {
+			if (ex == null) {
 				RecordMetadata metadata = result.getRecordMetadata();
 				log.info("Received new metadata. Topic: {}; Partition {}; Offset {}; Timestamp {}, at time {}",
 						metadata.topic(), metadata.partition(), metadata.offset(), metadata.timestamp(),
 						System.nanoTime());
+			}
+			else {
+				log.error("Error while sending message {} to topic {}", message.toString(), topicName, ex);
 			}
 		};
 	}

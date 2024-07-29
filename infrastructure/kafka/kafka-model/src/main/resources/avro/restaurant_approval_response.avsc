@@ -6,29 +6,25 @@
     {
       "name": "id",
       "type": {
-        "type": "string",
-        "logicalType": "uuid"
+        "type": "string"
       }
     },
     {
       "name": "sagaId",
       "type": {
-        "type": "string",
-        "logicalType": "uuid"
+        "type": "string"
       }
     },
     {
       "name": "restaurantId",
       "type": {
-        "type": "string",
-        "logicalType": "uuid"
+        "type": "string"
       }
     },
     {
       "name": "orderId",
       "type": {
-        "type": "string",
-        "logicalType": "uuid"
+        "type": "string"
       }
     },
     {
@@ -43,15 +39,18 @@
       "type": {
         "type": "enum",
         "name": "OrderApprovalStatus",
-        "symbols": ["APPROVED", "REJECTED"]
+        "symbols": [
+          "APPROVED",
+          "REJECTED"
+        ]
       }
     },
     {
       "name": "failureMessages",
       "type": {
         "type": "array",
-        "items":{
-          "type":"string"
+        "items": {
+          "type": "string"
         }
       }
     }

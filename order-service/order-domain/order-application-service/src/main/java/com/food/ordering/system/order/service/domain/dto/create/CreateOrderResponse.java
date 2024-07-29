@@ -2,9 +2,8 @@ package com.food.ordering.system.order.service.domain.dto.create;
 
 import java.util.UUID;
 
-import javax.validation.constraints.NotNull;
-
 import com.food.ordering.system.domain.valueobject.OrderStatus;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
